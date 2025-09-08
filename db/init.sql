@@ -1,0 +1,8 @@
+CREATE DATABASE IF NOT EXISTS usersdb;
+USE usersdb;
+
+CREATE TABLE IF NOT EXISTS users (
+    uid INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    age INT
+);

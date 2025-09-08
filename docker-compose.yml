@@ -1,0 +1,51 @@
+version: "3.8"
+services:
+  api-dev:
+    build: ./api
+    container_name: api-dev
+    ports:
+      - "8081:5000"
+    environment:
+      - FLASK_ENV=development
+    depends_on:
+      - db-dev
+
+  db-dev:
+    image: mysql:8.0
+    container_name: db-dev
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: usersdb
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: db4dev$
+    volumes:
+      - db_dev_data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  api-test:
+    build: ./api
+    container_name: api-test
+    ports:
+      - "8082:5000"
+    environment:
+      - FLASK_ENV=testing
+    depends_on:
+      - db-test
+
+  db-test:
+    image: mysql:8.0
+    container_name: db-test
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: usersdb
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: db4test$
+    volumes:
+      - db_test_data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  db_dev_data:
+  db_test_data:
