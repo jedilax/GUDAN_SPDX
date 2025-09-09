@@ -1,13 +1,10 @@
-FROM python:3.9-slim
-
+FROM python:3.11-slim
 WORKDIR /app
 
-# copy your code
-COPY app.py /app
+COPY require.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r require.txt
 
-# install Flask + MySQL connector
-RUN pip install --no-cache-dir flask mysql-connector-python
-
+COPY app.py .
 EXPOSE 5000
-
 CMD ["python", "app.py"]
