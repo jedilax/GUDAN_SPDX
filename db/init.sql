@@ -1,8 +1,6 @@
-CREATE DATABASE IF NOT EXISTS usersdb;
-USE usersdb;
-
-CREATE TABLE IF NOT EXISTS users (
-    uid INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100),
-    age INT
+-- runs automatically on first container start
+CREATE TABLE IF NOT EXISTS USERS (
+  uid INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  age INT NOT NULL
 );
