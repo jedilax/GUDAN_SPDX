@@ -1,51 +1,68 @@
-version: "3.8"
 services:
-  api-dev:
-    build: ./api
-    container_name: api-dev
-    ports:
-      - "8081:5000"
-    environment:
-      - FLASK_ENV=development
-    depends_on:
-      - db-dev
-
   db-dev:
     image: mysql:8.0
     container_name: db-dev
-    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: usersdb
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: db4dev$
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: devdb
+      MYSQL_USER: db4dev
+      MYSQL_PASSWORD: devpass
     volumes:
-      - db_dev_data:/var/lib/mysql
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - dev-data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    command: --default-authentication-plugin=mysql_native_password
 
-  api-test:
+  api-dev:
     build: ./api
-    container_name: api-test
-    ports:
-      - "8082:5000"
+    container_name: api-dev
     environment:
-      - FLASK_ENV=testing
+      DB_HOST: db-dev
+      DB_NAME: devdb
+      DB_USER: db4dev
+      DB_PASS: devpass
     depends_on:
-      - db-test
+      db-dev:
+        condition: service_healthy
+    ports:
+      - "8081:5000"
 
   db-test:
     image: mysql:8.0
     container_name: db-test
-    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: usersdb
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: db4test$
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: testdb
+      MYSQL_USER: db4test
+      MYSQL_PASSWORD: testpass
     volumes:
-      - db_test_data:/var/lib/mysql
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - test-data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    command: --default-authentication-plugin=mysql_native_password
+
+  api-test:
+    build: ./api
+    container_name: api-test
+    environment:
+      DB_HOST: db-test
+      DB_NAME: testdb
+      DB_USER: db4test
+      DB_PASS: testpass
+    depends_on:
+      db-test:
+        condition: service_healthy
+    ports:
+      - "8082:5000"
 
 volumes:
-  db_dev_data:
-  db_test_data:
+  dev-data:
+  test-data:
